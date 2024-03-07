@@ -13,5 +13,7 @@ namespace ChatBot.API.DTOs
 
         [Extensions("image/png", "image/jpeg")]
         public IFormFile? ImageFile { get; set; }
+
+        public int CategoryId { get; set; }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using ChatBot.DAL;
 using ChatBot.DAL.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +25,7 @@ namespace ChatBot.BLL.Services
             _audioService = audioService;
         }
 
-        public async Task Add(string name, string description, IFormFile? file)
+        public async Task Add(string name, string description, IFormFile? file, int categoryId)
         {
             string audioFile = await _audioService.GetAudio(description);
 
@@ -38,16 +40,44 @@ namespace ChatBot.BLL.Services
 
             await file?.CopyToAsync(stream);
 
-            _context.Add(new Product
+            Product added = _context.Products.Add(new Product
             {
                 Name = name,
                 Description = description,
                 AudioFileName = audioFile,
                 ImageFileName = imageFileName,
-                CategoryId = 1
-            });
+                CategoryId = categoryId
+            }).Entity;
+
+
+            Debug.WriteLine("---------------");
+            Debug.WriteLine(added.Id);
 
             _context.SaveChanges();
+
+            Debug.WriteLine("---------------");
+            Debug.WriteLine(added.Id);
+        }
+
+        public List<Product> GetProducts()
+        {
+            // SELECT * FROM Product
+            // return _context.Products.ToList();
+
+            // SELECT * FROM Product
+            // WHERE Name LIKE '%?%'
+            // _context.Products.Where(p => p.Name.Contains(?)).ToList();
+
+            // SELECT p.*, c.*
+            // FROM Product p
+            // LEFT JOIN Category c ON c.Id = p.CategoryId
+
+            return _context.Products.Include(p => p.Category).ToList();
+
+            //return _context
+            //    .Products.Include(p => p.Category)
+            //    .Where(p =>
+            //    p.Category.Name == "Moto").ToList();
         }
     }
 }

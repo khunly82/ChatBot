@@ -1,4 +1,5 @@
 ﻿using ChatBot.API.DTOs;
+using ChatBot.API.Mappers;
 using ChatBot.BLL.Services;
 using ChatBot.DAL;
 using Microsoft.AspNetCore.Http;
@@ -21,8 +22,21 @@ namespace ChatBot.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] ProductForm form)
         {
-            await _productService.Add(form.Name, form.Description, form.ImageFile);
+            await _productService.Add(
+                form.Name, 
+                form.Description, 
+                form.ImageFile, 
+                form.CategoryId
+            );
             return Ok();
+        }
+
+        [HttpGet]
+        public IActionResult GetAll() 
+        {
+            return Ok(
+                _productService.GetProducts().Select(EntityToDTO.ToDTO)
+            );
         }
     }
 }
